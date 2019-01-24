@@ -30,6 +30,8 @@ public:
 	// Constructional functions
 	friend void Zero(Matrix& mat);
 	friend void Identity(Matrix& mat);
+
+	friend Matrix Identity(uint dimension);
 	
 
 	// Setters / Getters
@@ -47,12 +49,16 @@ public:
 	// Transformation / arithmetic functions
 
 	void Transpose();
+	void Invert();
 	void MultiplyRow(uint row, double factor);
 	void SwapRows(uint left, uint right);
 	void AddMultiplesToRow(uint base, uint target, double factor);
 
 	void TransformToEchelonForm();
 	void TransformToReducedEchelonForm();
+
+	void ConcatVertically(const Matrix& other);
+	void ConcatHorizontally(const Matrix& other);
 
 	friend double det(const Matrix& mat);
 	friend Matrix mul(const Matrix& left, const Matrix& right);
@@ -137,6 +143,18 @@ inline void Identity(Matrix& mat)
 	Zero(mat);
 	for (uint k = 0; k < mat.m_cols; k++)
 		mat.m_matrix[k][k] = 1;
+}
+
+////////////////////////////////////////////////////
+/// \brief Creates an identity matrix and returns it
+///
+////////////////////////////////////////////////////
+inline Matrix Identity(uint dimension)
+{
+	Matrix id(dimension, dimension);
+	Identity(id);
+
+	return id;
 }
 
 
@@ -252,6 +270,29 @@ inline void Matrix::Transpose()
 
 
 ////////////////////////////////////////////////////
+/// \brief Inverts the matrix
+///
+////////////////////////////////////////////////////
+inline void Matrix::Invert()
+{
+	if (!IsInvertable())
+		return;
+
+	Matrix holder = *this;
+	holder.ConcatVertically(Identity(m_rows));
+
+	holder.TransformToReducedEchelonForm();
+
+	Matrix inverse(m_rows, m_cols);
+	for (int row = 0; row < m_rows; row++)
+		for (int col = 0; col < m_cols; col++)
+			inverse.SetNumber(row, col, holder.GetNumber(row, col + m_cols));
+	*this = inverse;
+}
+
+
+
+////////////////////////////////////////////////////
 /// \brief Multiplies each value of a given row by a given factor
 ///
 /// \param row The row that the multiplication should be applied to
@@ -338,7 +379,7 @@ inline Matrix mul(const Matrix& right, const Matrix& left)
 
 	for (uint row = 0; row < returnMatrix.m_rows; row++)
 		for (uint col = 0; col < returnMatrix.m_cols; col++)
-			for (uint k = 0; k < right.m_cols; k++)
+			for (uint k = 0; k < right.m_cols; k++) 
 				returnMatrix.m_matrix[row][col] += right.m_matrix[row][k] * left.m_matrix[k][col];
 
 	return returnMatrix;
@@ -491,6 +532,31 @@ inline void Matrix::TransformToReducedEchelonForm()
 			if (m_matrix[row][col] == -0) m_matrix[row][col] = 0;
 }
 
+inline void Matrix::ConcatVertically(const Matrix& other)
+{
+	if (m_rows != other.GetRows())
+		return;
+
+	Resize(m_rows, m_cols + other.GetColumns(), m_matrix);
+
+	for (int row = 0; row < m_rows; row++)
+		for (int col = other.GetColumns(); col < m_cols; col++)
+			m_matrix[row][col] = other.GetNumber(row, col - other.GetColumns());
+}
+
+
+inline void Matrix::ConcatHorizontally(const Matrix& other)
+{
+	if (m_cols != other.GetColumns())
+		return;
+
+	Resize(m_rows + other.GetRows(), m_cols, m_matrix);
+
+	for (int col = 0; col < m_cols; col++)
+		for (int row = other.GetRows(); row < m_rows; row++)
+			m_matrix[row][col] = other.GetNumber(row, col - other.GetColumns());
+}
+
 
 inline bool Matrix::InBounds(uint row, uint col) const
 {
@@ -510,6 +576,9 @@ inline void Matrix::Resize(uint rows, uint cols, doubleMatrix& matrix)
 	matrix.resize(rows);
 	for (int row = 0; row < rows; row++)
 		matrix[row].resize(cols);
+
+	m_rows = rows;
+	m_cols = cols;
 }
 
 
