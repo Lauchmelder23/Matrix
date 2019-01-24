@@ -50,6 +50,8 @@ public:
 
 	void Transpose();
 	void Invert();
+	friend Matrix Transpose(const Matrix& mat);
+	friend Matrix Invert(const Matrix& mat);
 	void MultiplyRow(uint row, double factor);
 	void SwapRows(uint left, uint right);
 	void AddMultiplesToRow(uint base, uint target, double factor);
@@ -87,7 +89,7 @@ private:
 	bool DimensionsFitting(const Matrix& left, const Matrix& right);
 	void Resize(uint rows, uint cols, doubleMatrix& matrix);
 
-
+	Matrix _transpose(const Matrix& mat);
 };
 
 
@@ -270,6 +272,25 @@ inline void Matrix::Transpose()
 
 
 ////////////////////////////////////////////////////
+/// \brief Transposes the matrix (friend function)
+///
+////////////////////////////////////////////////////
+inline Matrix Transpose(const Matrix& mat)
+{
+	Matrix transposed = mat;
+	transposed.Transpose();
+	return transposed;
+}
+
+Matrix Matrix::_transpose(const Matrix& mat)
+{
+	Matrix transposed = mat;
+	transposed.Transpose();
+	return transposed;
+}
+
+
+////////////////////////////////////////////////////
 /// \brief Inverts the matrix
 ///
 ////////////////////////////////////////////////////
@@ -288,6 +309,18 @@ inline void Matrix::Invert()
 		for (int col = 0; col < m_cols; col++)
 			inverse.SetNumber(row, col, holder.GetNumber(row, col + m_cols));
 	*this = inverse;
+}
+
+
+////////////////////////////////////////////////////
+/// \brief Invertss the matrix (friend function)
+///
+////////////////////////////////////////////////////
+inline Matrix Invert(const Matrix& mat)
+{
+	Matrix inverse = mat;
+	inverse.Invert();
+	return inverse;
 }
 
 
