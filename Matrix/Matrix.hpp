@@ -6,7 +6,6 @@
 #include <iostream>
 #include <deque>
 #include <algorithm>
-#include <string>
 
 #define CHECK_BOUNDS(_row, _col) if(!InBounds(_row, _col)) return
 
