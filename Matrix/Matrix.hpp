@@ -44,6 +44,7 @@ public:
 
 	bool IsInvertable();
 	bool IsSquare();
+	bool IsOrthogonal();
 
 
 	// Transformation / arithmetic functions
@@ -79,6 +80,8 @@ public:
 
 	Matrix operator*(const Matrix& other);
 	void operator*=(const Matrix& other);
+
+	bool operator==(const Matrix& other);
 
 	friend std::ostream& operator<<(std::ostream& stream, const Matrix& other);
 private:
@@ -225,6 +228,19 @@ bool Matrix::IsSquare()
 {
 	return m_rows == m_cols;
 }
+
+////////////////////////////////////////////////////
+/// \brief Returns wether the matrix is orthogonal
+///
+////////////////////////////////////////////////////
+bool Matrix::IsOrthogonal()
+{
+	if (!IsSquare())
+		return false;
+
+	return ((*this * _transpose(*this)) == Identity(m_rows));
+}
+
 
 
 ////////////////////////////////////////////////////
@@ -696,6 +712,25 @@ Matrix Matrix::operator*(const Matrix& other)
 void Matrix::operator*=(const Matrix& other)
 {
 	*this = mul(*this, other);
+}
+
+
+bool Matrix::operator==(const Matrix& other)
+{
+	DimensionsFitting(*this, other);
+
+	bool equal = true;
+
+	for (int row = 0; row < m_rows; row++) {
+		for (int col = 0; col < m_cols; col++) {
+			if (m_matrix[row][col] == other.GetNumber(row, col)) {
+				equal = false;
+				break;
+			}
+		}
+	}
+
+	return equal;
 }
 
 

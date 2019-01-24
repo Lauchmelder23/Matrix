@@ -20,8 +20,7 @@ int main(int argc, char** argv)
 	myMatrix.SetNumber(2, 1, 0);
 	myMatrix.SetNumber(2, 2, 1);
 
-	Matrix inverse = myMatrix;
-	inverse.Invert();
+	Matrix inverse = Invert(myMatrix);
 	
 
 	std::cout << myMatrix << std::endl;
@@ -29,6 +28,10 @@ int main(int argc, char** argv)
 	std::cout << inverse << std::endl;
 
 	std::cout << mul(myMatrix, inverse) << std::endl;
+
+	std::cout << Transpose(myMatrix) << std::endl;
+	std::cout << Transpose(myMatrix) * myMatrix << std::endl;
+	std::cout << myMatrix.IsOrthogonal() << std::endl;
 
 	getchar();
 
